@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Adaptar el sitio web a cualquier dispositivo -->
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>Visualizando la Calidad del Aire - La Paz</title>
+
+    <!-- Hojas de estilo y favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" type="text/css" href="./stylesheets/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Librería de íconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <!-- AFrame -->
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+
+    <script src="https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js"></script>
+    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
+    <script>
+      THREEx.ArToolkitContext.baseURL =
+        "https://raw.githack.com/jeromeetienne/ar.js/master/three.js/";
+    </script>
+
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- jsnlog -->
+    <script src="jsnlog.min.js"></script>
+
+    <script src="components.js"></script>
+    <script src="../shared/parseData.js"></script>
+    <script src="visualizeData.js"></script>
+
+    <script src="readData.js"></script>
+    <!--  <script src="molecularParticles.js"></script> -->
+    <script src="molecules.js"></script>
+
+    <!-- Creando el consoleAppender para escribir registros en la consola -->
+    <jsnlog>
+      <consoleAppender name="consoleAppender"></consoleAppender>
+      <logger name="mylogger" appenders="consoleAppender"></logger>
+    </jsnlog>
+  </head>
+
+  <body
+    style="margin: 0; overflow: hidden; font-size: 1.3em"
+    id="visArea"
+    onload="introduction(1);"
+  >
+    <!-- Escena AR.js con entidades y cámara -->
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
+      cursor="rayOrigin: mouse; fuse: true; fuseTimeout: 0;"
+      raycaster="objects: [gps-entity-place];"
+      inspector
+      keyboard-shortcuts
+      screenshot
+      device-orientation-permission-ui
+    >
+      <a-camera
+        gps-camera="minDistance: 20;"
+        rotation-reader
+        id="camera"
+        camera-listener
+        cursor="rayOrigin: mouse; fuse: false"
+        raycaster="objects: .clickable; far: 10000"
+      >
+        <a-entity
+          id="arrow"
+          style="visibility: hidden"
+          arrow="direction: 0 1 0; length: 0.7; headWidth: 0.2; color: #ffdb4d;"
+          position="0 -1.5 -2.7"
+        ></a-entity>
+
+        <a-entity
+          particle-system="preset: dust; size: 4; maxAge: 10;"
+        ></a-entity>
+      </a-camera>
+      <a-entity id="molecular-container"></a-entity>
+    </a-scene>
+
+    <!-- Botón para el punto de datos más cercano -->
+    <div class="centered">
+      <div id="distance" style="visibility: hidden">
+        Punto más cercano: -.-- km
+      </div>
+    </div>
+
+    <!-- Botón que aparece cuando estás en un área guía -->
+    <div class="top-right" id="guide-buttons"></div>
+
+    <!-- Contenedor del medidor -->
+    <div class="right" style="visibility: hidden" id="gaugeContainer">
+      <div
+        style="
+          text-align: center;
+          font-size: 12px;
+          background-color: #555;
+          color: white;
+          padding: 0.1em;
+        "
+      >
+        PM10 (ppm)
+      </div>
+      <canvas
+        id="gauge"
+        width="30"
+        height="300"
+        style="margin-right: 0px"
+      ></canvas>
+    </div>
+
+    <!-- Barra de íconos -->
+    <div class="top-left">
+      <button onclick="showAndHideInformation()" id="iconBarBtn">
+        <i class="fa fa-question-circle"></i>
+      </button>
+      <a href="../" class="active" id="iconBarBtn"
+        ><i class="fa fa-globe"></i
+      ></a>
+      <button onclick="showMoleculeInfo()" id="iconBarBtn">
+        <i class="fa fa-flask"></i>
+      </button>
+    </div>
+
+    <!-- Área de información/configuración -->
+    <div class="information" id="information" style="display: none">
+      <h3>Calidad del aire en La Paz (PM10)</h3>
+      <p>Selecciona un conjunto de datos para explorar:</p>
+      <div class="slidecontainer">
+        <input
+          type="range"
+          min="1"
+          max="2"
+          value="1"
+          class="slider"
+          id="range"
+        />
+        <p style="text-align: left">23/11/2024 - 24/12/2024</p>
+        <button onclick="setDate()" id="infoBtn">Seleccionar fecha</button>
+        <br /><br /><br />
+        <button onclick="introduction(1)" id="infoBtn">Ver introducción</button>
+      </div>
+    </div>
+    <!-- Area de moleculas detectadas -->
+    <div class="information" id="moleculeInformation" style="display: none">
+      <h3>Moléculas detectadas</h3>
+      <div class="accordion">
+        <button class="accordion-button">Dióxido de nitrógeno (NO₂)</button>
+        <div class="accordion-content">
+          <p><strong>Estructura 2D:</strong></p>
+          <img
+            src="../img/no2.jpg"
+            alt="Estructura NO₂"
+            style="max-width: 100%"
+          />
+          <p>
+            <strong>Información:</strong> El dióxido de nitrógeno es un
+            contaminante atmosférico producido por fuentes industriales y
+            vehículos de motor.
+          </p>
+          <p>
+            <strong>Impacto en la salud:</strong> Puede causar problemas
+            respiratorios y agravar enfermedades como el asma.
+          </p>
+        </div>
+        <button class="accordion-button">Dióxido de carbono (CO₂)</button>
+        <div class="accordion-content">
+          <p><strong>Estructura 2D:</strong></p>
+          <img
+            src="../img/co2.jpg"
+            alt="Estructura CO₂"
+            style="max-width: 100%"
+          />
+          <p>
+            <strong>Información:</strong> El dióxido de carbono es un gas de
+            efecto invernadero emitido por actividades humanas como la quema de
+            combustibles fósiles.
+          </p>
+          <p>
+            <strong>Impacto en la salud:</strong> Contribuye al cambio
+            climático, lo que tiene efectos indirectos en la salud humana.
+          </p>
+        </div>
+        <!-- Agrega más moléculas si es necesario -->
+      </div>
+    </div>
+
+    <!-- Área de información para guías -->
+    <div
+      class="information"
+      id="guideAreaInfo"
+      style="visibility: hidden; text-align: center"
+    >
+      <div id="guideContent"></div>
+      <button onclick="openClosePopup()" id="guideBtn">Entendido</button>
+    </div>
+
+    <!-- Introducción -->
+    <div class="introduction">
+      <div id="introduction-1">
+        <p>
+          ¡Bienvenido! Este es un ejemplo de aire limpio, con niveles bajos de
+          contaminación (PM10: 5 µg/m³).
+        </p>
+        <button onclick="introduction(2)" class="bottom" id="introBtn">
+          >
+        </button>
+      </div>
+      <div id="introduction-2">
+        <p>
+          Este es un ejemplo de aire contaminado, con niveles altos de
+          partículas PM10 (PM10: 40 µg/m³).
+        </p>
+        <button onclick="introduction(3)" class="bottom" id="introBtn">
+          >
+        </button>
+      </div>
+      <div id="introduction-3">
+        <p>
+          En promedio, el aire en La Paz tiene un valor PM10 de 15 µg/m³, lo
+          cual se considera aceptable.
+        </p>
+        <button onclick="introduction(4)" class="bottom" id="introBtn">
+          >
+        </button>
+      </div>
+      <div id="introduction-4">
+        <p>
+          En la derecha, puedes ver un medidor que muestra los niveles de
+          contaminación cercanos.<br />
+          La flecha indica la dirección hacia el próximo punto de interés.
+          Puedes seguir la ruta para explorar más.<br />
+          Haz clic en la distancia para abrir Google Maps y recibir
+          indicaciones.
+        </p>
+        <button onclick="introduction(5)" class="bottom" id="introBtn">
+          >
+        </button>
+      </div>
+      <div id="introduction-5">
+        <p>
+          Si deseas cambiar la fecha o volver a ver esta introducción, haz clic
+          en el signo de interrogación en la esquina superior izquierda.
+          ¡Explora y aprende más sobre la calidad del aire en tu ciudad!
+        </p>
+        <button onclick="introduction(6)" class="bottom" id="introBtn">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script src="airQualityGauge.js"></script>

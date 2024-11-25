@@ -692,9 +692,11 @@ function introduction(step) {
 function showAndHideInformation() {
   var information = document.getElementById("information");
   var moleculeInfo = document.getElementById("moleculeInformation");
+  var labInfo = document.getElementById("labInformation");
 
   // Ocultar la sección de moléculas
   moleculeInfo.style.display = "none";
+  labInfo.style.display = "none";
 
   if (
     information.style.display === "none" ||
@@ -714,9 +716,11 @@ function showAndHideInformation() {
 function showMoleculeInfo() {
   var moleculeInfo = document.getElementById("moleculeInformation");
   var information = document.getElementById("information");
+  var labInfo = document.getElementById("labInformation");
 
   // Ocultar otras secciones
   information.style.display = "none";
+  labInfo.style.display = "none";
 
   if (
     moleculeInfo.style.display === "none" ||
@@ -729,6 +733,27 @@ function showMoleculeInfo() {
     moleculeInfo.style.display = "flex";
   } else {
     moleculeInfo.style.display = "none";
+  }
+}
+
+// Función para mostrar/ocultar la información de laboratorios
+function showLabInfo() {
+  var labInfo = document.getElementById("labInformation");
+  var information = document.getElementById("information");
+  var moleculeInfo = document.getElementById("moleculeInformation");
+
+  // Ocultar otras secciones
+  information.style.display = "none";
+  moleculeInfo.style.display = "none";
+
+  if (labInfo.style.display === "none" || labInfo.style.display === "") {
+    var introduction = document.getElementsByClassName("introduction");
+    for (var i = 0; i < introduction.length; i++) {
+      introduction[i].style.display = "none";
+    }
+    labInfo.style.display = "flex";
+  } else {
+    labInfo.style.display = "none";
   }
 }
 

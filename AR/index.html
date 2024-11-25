@@ -131,7 +131,9 @@
       <button onclick="showAndHideInformation()" id="iconBarBtn">
         <i class="fa fa-question-circle"></i>
       </button>
-      <a href="#" class="active" id="iconBarBtn"><i class="fa fa-globe"></i></a>
+      <button onclick="showLabInfo()" id="iconBarBtn">
+        <i class="fa fa-globe"></i>
+      </button>
       <button onclick="showMoleculeInfo()" id="iconBarBtn">
         <i class="fa fa-flask"></i>
       </button>
@@ -197,6 +199,62 @@
           </p>
         </div>
         <!-- Agrega más moléculas si es necesario -->
+      </div>
+    </div>
+
+    <!-- Área de información de laboratorios -->
+    <div class="information" id="labInformation" style="display: none">
+      <h3>Laboratorios</h3>
+      <div class="accordion">
+        <button class="accordion-button">
+          Facultad de Ciencias Puras y Naturales - UMSA
+        </button>
+        <div class="accordion-content">
+          <p>
+            <strong>Descripción:</strong> Esta es una ubicación educativa
+            importante de la ciudad de La Paz, cerca del Campus Central de la
+            UMSA.
+          </p>
+          <p><strong>Ubicación:</strong> -16.50426, -68.12657</p>
+          <p>
+            <strong>Enlace en Maps:</strong>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=-16.50426,-68.12657"
+              target="_blank"
+              >Ver en Google Maps</a
+            >
+          </p>
+          <img
+            src="../img/lab1.jpg"
+            alt="Facultad de Ciencias Puras y Naturales - UMSA"
+            style="max-width: 100%"
+          />
+        </div>
+
+        <button class="accordion-button">
+          Facultad de Ciencias Puras y Naturales - Campus Cota Cota - UMSA
+        </button>
+        <div class="accordion-content">
+          <p>
+            <strong>Descripción:</strong> Este campus está rodeado de áreas
+            verdes y es ideal para la investigación científica.
+          </p>
+          <p><strong>Ubicación:</strong> -16.53863, -68.06633</p>
+          <p>
+            <strong>Enlace en Maps:</strong>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=-16.53863,-68.06633"
+              target="_blank"
+              >Ver en Google Maps</a
+            >
+          </p>
+          <img
+            src="../img/lab2.jpg"
+            alt="Facultad de Ciencias Puras y Naturales - Campus Cota Cota - UMSA"
+            style="max-width: 100%"
+          />
+        </div>
+        <!-- Agrega más laboratorios si es necesario -->
       </div>
     </div>
 

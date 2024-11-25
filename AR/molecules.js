@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // Generar múltiples moléculas flotantes
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 70; i++) {
     const moleculeData =
       molecules[Math.floor(Math.random() * molecules.length)];
     const molecule = moleculeData.create();

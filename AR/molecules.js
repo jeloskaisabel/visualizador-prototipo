@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("molecular-container");
 
+  // Lista para almacenar las posiciones de las moléculas
+  const moleculePositions = [];
+
   // Definición de las moléculas con sus estructuras
   const molecules = [
     {
@@ -15,13 +18,51 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // Generar múltiples moléculas flotantes
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 50; i++) {
     const moleculeData =
       molecules[Math.floor(Math.random() * molecules.length)];
     const molecule = moleculeData.create();
     positionMolecule(molecule);
     animateMolecule(molecule);
     container.appendChild(molecule);
+  }
+
+  // Función para verificar si una posición está cerca de otra
+  function isPositionTooClose(position, positions, minDistance) {
+    for (let pos of positions) {
+      const distance = Math.sqrt(
+        Math.pow(pos.x - position.x, 2) +
+          Math.pow(pos.y - position.y, 2) +
+          Math.pow(pos.z - position.z, 2)
+      );
+      if (distance < minDistance) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Función para posicionar la molécula en un lugar aleatorio
+  function positionMolecule(molecule) {
+    let position;
+    let attempts = 0;
+    const maxAttempts = 10;
+    do {
+      const x = (Math.random() - 0.5) * 1.5;
+      const y = Math.random() * 1.5 + 1;
+      const z = -Math.random() * 1.5 - 0.5;
+      position = { x: x, y: y, z: z };
+      attempts++;
+    } while (
+      isPositionTooClose(position, moleculePositions, 0.2) &&
+      attempts < maxAttempts
+    );
+
+    molecule.setAttribute(
+      "position",
+      `${position.x} ${position.y} ${position.z}`
+    );
+    moleculePositions.push(position);
   }
 });
 
@@ -151,17 +192,11 @@ function createCO2Structure() {
   return molecule;
 }
 
-// Función para posicionar la molécula en un lugar aleatorio
-function positionMolecule(molecule) {
-  const x = (Math.random() - 0.5) * 2; // Rango reducido
-  const y = Math.random() * 1 + 0.5; // Para que estén por encima del suelo
-  const z = (Math.random() - 0.5) * 2;
-  molecule.setAttribute("position", `${x} ${y} ${z}`);
-}
-
-// Función para animar la molécula con movimiento suave
 function animateMolecule(molecule) {
-  const duration = 10000 + Math.random() * 5000; // Duración aleatoria entre 10 y 15 segundos
+  const duration = 5000 + Math.random() * 5000; // Duración aleatoria entre 5 y 10 segundos
+
+  // Obtener posición inicial
+  const initialPosition = molecule.getAttribute("position");
 
   // Animación de movimiento en posición
   molecule.setAttribute("animation__position", {
@@ -171,15 +206,9 @@ function animateMolecule(molecule) {
     easing: "easeInOutSine",
     loop: true,
     to: {
-      x:
-        parseFloat(molecule.getAttribute("position").x) +
-        (Math.random() - 0.5) * 0.5,
-      y:
-        parseFloat(molecule.getAttribute("position").y) +
-        (Math.random() - 0.5) * 0.5,
-      z:
-        parseFloat(molecule.getAttribute("position").z) +
-        (Math.random() - 0.5) * 0.5,
+      x: parseFloat(initialPosition.x) + (Math.random() - 0.5) * 0.5,
+      y: parseFloat(initialPosition.y) + (Math.random() - 0.5) * 0.5,
+      z: parseFloat(initialPosition.z) + (Math.random() - 0.5) * 0.5,
     },
   });
 
